@@ -1,0 +1,8 @@
+entero pasos = 2 + 1;
+giro lado = derecha;
+mover(pasos);
+girar(lado);
+{
+    entero pasos = 2;
+    mover(pasos);
+}

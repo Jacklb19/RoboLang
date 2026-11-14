@@ -1,0 +1,3 @@
+mover(3);
+girar(derecha);
+mover(2);
