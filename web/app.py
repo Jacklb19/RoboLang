@@ -9,11 +9,13 @@ Status codes:
 import logging
 from collections.abc import Callable
 from functools import cache
+from pathlib import Path
 from typing import Any
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, StrictBool, StrictStr
 
 from . import config
@@ -41,7 +43,12 @@ class BackendUnavailable(Exception):
     pass
 
 
-def create_app(backend_factory: Callable[[], Backend] = load_backend) -> FastAPI:
+def create_app(
+    backend_factory: Callable[[], Backend] = load_backend,
+    *,
+    examples_dir: Path = config.EXAMPLES_DIR,
+    static_dir: Path = config.STATIC_DIR,
+) -> FastAPI:
     app = FastAPI(title=config.APP_TITLE)
 
     @cache
@@ -55,9 +62,18 @@ def create_app(backend_factory: Callable[[], Backend] = load_backend) -> FastAPI
             raise BackendUnavailable from error
 
     def compile_request(body: ProgramRequest, backend: Backend) -> Any:
-        if len(body.source) > backend.max_source_chars:
-            raise SourceTooLong(backend.max_source_chars)
+        limit = backend.world.max_source_chars
+        if len(body.source) > limit:
+            raise SourceTooLong(limit)
         return backend.compile_source(body.source, optimize=body.optimize)
+
+    @app.get(f"{config.API_PREFIX}/config")
+    def config_endpoint(backend: Backend = Depends(get_backend)) -> dict[str, Any]:
+        return backend.world.to_dict()
+
+    @app.get(f"{config.API_PREFIX}/examples")
+    def examples_endpoint() -> dict[str, Any]:
+        return {"default": config.DEFAULT_EXAMPLE, "examples": _load_examples(examples_dir)}
 
     @app.post(f"{config.API_PREFIX}/compile")
     def compile_endpoint(body: ProgramRequest, backend: Backend = Depends(get_backend)) -> dict[str, Any]:
@@ -91,7 +107,27 @@ def create_app(backend_factory: Callable[[], Backend] = load_backend) -> FastAPI
         logger.error("Unexpected error while handling a request", exc_info=error)
         return _internal_error()
 
+    # Mounted last so the API routes above take precedence over static files.
+    if static_dir.is_dir():
+        app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+
     return app
+
+
+def _load_examples(directory: Path) -> list[dict[str, str]]:
+    if not directory.is_dir():
+        return []
+    files = {path.name: path for path in directory.glob(config.EXAMPLE_PATTERN) if path.is_file()}
+    ordered = [name for name in config.EXAMPLE_TITLES if name in files]
+    ordered += sorted(name for name in files if name not in config.EXAMPLE_TITLES)
+    return [
+        {
+            "id": name,
+            "title": config.EXAMPLE_TITLES.get(name, name),
+            "source": files[name].read_text(encoding="utf-8"),
+        }
+        for name in ordered
+    ]
 
 
 def _describe_error(item: dict[str, Any]) -> dict[str, str]:

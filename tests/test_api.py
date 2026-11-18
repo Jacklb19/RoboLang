@@ -16,10 +16,11 @@ import pytest
 from fastapi.testclient import TestClient
 
 from web.app import create_app
-from web.backend import Backend
+from web.backend import Backend, WorldConfig
 
 FIXTURES = Path(__file__).parent / "fixtures" / "api"
 MAX_SOURCE_CHARS = 4_000
+WORLD = WorldConfig(MAX_SOURCE_CHARS, 8, 8, 1, 4, "NORTE")
 
 INTEGRAL_SOURCE = (
     "entero pasos = 2 + 1;\ngiro lado = derecha;\nmover(pasos);\ngirar(lado);\n"
@@ -108,7 +109,7 @@ class FakeBackend:
         return FakeExecuted(self.programs[source]["execution"])
 
     def as_backend(self) -> Backend:
-        return Backend(self.compile_source, self.execute, MAX_SOURCE_CHARS)
+        return Backend(self.compile_source, self.execute, WORLD)
 
 
 @pytest.fixture
@@ -299,8 +300,8 @@ def broken(*_: Any, **__: Any) -> Any:
 @pytest.mark.parametrize(
     ("endpoint", "backend"),
     [
-        ("/api/compile", Backend(broken, broken, MAX_SOURCE_CHARS)),
-        ("/api/run", Backend(FakeBackend().compile_source, broken, MAX_SOURCE_CHARS)),
+        ("/api/compile", Backend(broken, broken, WORLD)),
+        ("/api/run", Backend(FakeBackend().compile_source, broken, WORLD)),
     ],
 )
 def test_internal_failure_returns_generic_500(endpoint: str, backend: Backend) -> None:
@@ -323,3 +324,54 @@ def test_missing_backend_returns_generic_500() -> None:
 
     assert response.status_code == 500
     assert "robolang" not in response.text
+
+
+# --- Interface support ---------------------------------------------------------------------------
+
+
+def test_config_exposes_grid_and_start_from_backend(client: TestClient) -> None:
+    response = client.get("/api/config")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "max_source_chars": MAX_SOURCE_CHARS,
+        "grid": {"width": 8, "height": 8},
+        "start": {"x": 1, "y": 4, "orientation": "NORTE"},
+    }
+
+
+def test_examples_are_read_from_disk_in_configured_order(fake: FakeBackend, tmp_path: Path) -> None:
+    (tmp_path / "99_otro.rbl").write_text("mover(1);", encoding="utf-8")
+    (tmp_path / "08_integral.rbl").write_text(INTEGRAL_SOURCE, encoding="utf-8")
+    (tmp_path / "notas.txt").write_text("ignorado", encoding="utf-8")
+    client = TestClient(create_app(fake.as_backend, examples_dir=tmp_path))
+
+    body = client.get("/api/examples").json()
+
+    assert body["default"] == "08_integral.rbl"
+    assert [(e["id"], e["title"]) for e in body["examples"]] == [
+        ("08_integral.rbl", "§15 · Ejemplo integral"), ("99_otro.rbl", "99_otro.rbl"),
+    ]
+    assert body["examples"][0]["source"] == INTEGRAL_SOURCE
+
+
+def test_examples_missing_directory_returns_empty_list(fake: FakeBackend, tmp_path: Path) -> None:
+    client = TestClient(create_app(fake.as_backend, examples_dir=tmp_path / "no-existe"))
+
+    assert client.get("/api/examples").json()["examples"] == []
+
+
+def test_interface_is_served_at_root(client: TestClient) -> None:
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert client.get("/app.js").status_code == 200
+    assert client.get("/styles.css").status_code == 200
+
+
+def test_api_routes_take_precedence_over_static_files(client: TestClient) -> None:
+    assert client.post("/api/compile", json={"source": INTEGRAL_SOURCE}).headers["content-type"] == "application/json"
+    unknown = client.get("/api/no-existe")
+    assert unknown.status_code == 404
+    assert "text/html" not in unknown.headers.get("content-type", "")

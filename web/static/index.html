@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RoboLang</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <h1>ROBOLANG</h1>
+      <span class="muted">Compilador educativo · robot en cuadrícula <span id="grid-size">8×8</span></span>
+    </div>
+    <nav class="topnav" aria-label="Principal">
+      <label class="field-inline">
+        <span>Ejemplos</span>
+        <select id="examples" aria-label="Cargar un ejemplo"></select>
+      </label>
+      <a href="#ayuda">Ayuda</a>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <div class="workspace">
+      <section class="panel editor-panel" aria-labelledby="editor-title">
+        <div class="panel-head">
+          <h2 id="editor-title" class="panel-title">Código fuente</h2>
+          <div class="panel-tools">
+            <label class="check">
+              <input type="checkbox" id="optimize" checked>
+              Optimizar (plegado de constantes)
+            </label>
+            <span id="char-count" class="mono muted" aria-live="polite">0 / 0</span>
+          </div>
+        </div>
+
+        <div id="alert" class="alert" role="alert" hidden>
+          <p class="alert-title" id="alert-title"></p>
+          <p class="alert-code mono" id="alert-code"></p>
+          <p class="alert-message" id="alert-message"></p>
+        </div>
+
+        <div class="editor">
+          <div class="gutter mono" id="gutter" aria-hidden="true"></div>
+          <div class="editor-body">
+            <div class="line-mark" id="line-mark" hidden></div>
+            <textarea id="source" class="mono" spellcheck="false" autocomplete="off" autocapitalize="off"
+                      aria-label="Código fuente de RoboLang" wrap="off"></textarea>
+          </div>
+        </div>
+
+        <div class="panel-foot">
+          <button type="button" id="btn-compile" class="btn btn-outline">Compilar</button>
+          <button type="button" id="btn-run" class="btn btn-primary">Ejecutar</button>
+          <p id="status" class="status" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="panel sim-panel" aria-labelledby="sim-title">
+        <div class="panel-head">
+          <h2 id="sim-title" class="panel-title">Simulador <span id="sim-size">8×8</span></h2>
+          <span id="play-badge" class="badge">Sin ejecutar</span>
+        </div>
+        <div class="sim-body">
+          <div id="grid" class="grid mono" role="img" aria-label="Cuadrícula"></div>
+          <dl class="readout">
+            <div><dt>Inicio</dt><dd class="mono" id="pos-start">—</dd></div>
+            <div class="now"><dt>Ahora</dt><dd class="mono" id="pos-now">—</dd></div>
+            <div><dt>Final de la VM</dt><dd class="mono" id="pos-final">—</dd></div>
+          </dl>
+          <p class="current-event" id="current-event"></p>
+        </div>
+        <div class="panel-foot" role="group" aria-label="Controles de reproducción">
+          <button type="button" id="btn-pause" class="btn" disabled>Pausar</button>
+          <button type="button" id="btn-step" class="btn" disabled>Paso</button>
+          <button type="button" id="btn-restart" class="btn" disabled>Reiniciar</button>
+          <label class="field-inline speed">
+            <span>Velocidad</span>
+            <select id="speed">
+              <option value="slow">Lenta</option>
+              <option value="normal" selected>Normal</option>
+              <option value="fast">Rápida</option>
+            </select>
+          </label>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel phases" aria-label="Fases del compilador">
+      <div class="tablist" role="tablist" aria-label="Fases" id="tablist">
+        <button type="button" role="tab" id="tab-tokens" aria-controls="panel-tokens" aria-selected="true">Tokens</button>
+        <button type="button" role="tab" id="tab-ast" aria-controls="panel-ast" aria-selected="false" tabindex="-1">AST</button>
+        <button type="button" role="tab" id="tab-symbols" aria-controls="panel-symbols" aria-selected="false" tabindex="-1">Símbolos</button>
+        <button type="button" role="tab" id="tab-tac" aria-controls="panel-tac" aria-selected="false" tabindex="-1">TAC</button>
+        <button type="button" role="tab" id="tab-assembly" aria-controls="panel-assembly" aria-selected="false" tabindex="-1">Ensamblador</button>
+        <button type="button" role="tab" id="tab-trace" aria-controls="panel-trace" aria-selected="false" tabindex="-1">Traza</button>
+        <button type="button" role="tab" id="tab-diagnostics" aria-controls="panel-diagnostics" aria-selected="false" tabindex="-1">Diagnósticos</button>
+      </div>
+      <div class="tabpanel" role="tabpanel" id="panel-tokens" aria-labelledby="tab-tokens" tabindex="0"></div>
+      <div class="tabpanel" role="tabpanel" id="panel-ast" aria-labelledby="tab-ast" tabindex="0" hidden></div>
+      <div class="tabpanel" role="tabpanel" id="panel-symbols" aria-labelledby="tab-symbols" tabindex="0" hidden></div>
+      <div class="tabpanel" role="tabpanel" id="panel-tac" aria-labelledby="tab-tac" tabindex="0" hidden></div>
+      <div class="tabpanel" role="tabpanel" id="panel-assembly" aria-labelledby="tab-assembly" tabindex="0" hidden></div>
+      <div class="tabpanel" role="tabpanel" id="panel-trace" aria-labelledby="tab-trace" tabindex="0" hidden></div>
+      <div class="tabpanel" role="tabpanel" id="panel-diagnostics" aria-labelledby="tab-diagnostics" tabindex="0" hidden></div>
+    </section>
+
+    <section class="panel help" id="ayuda" aria-labelledby="help-title">
+      <h2 id="help-title" class="panel-title">Ayuda</h2>
+      <ul>
+        <li><strong>Compilar</strong> recorre las fases (tokens, AST, símbolos, TAC, ensamblador) sin mover el robot.</li>
+        <li><strong>Ejecutar</strong> vuelve a compilar en el servidor y reproduce los eventos que devuelve la máquina virtual, desde el estado inicial.</li>
+        <li>Si cambias el código o la opción de optimizar, los resultados anteriores se descartan.</li>
+        <li>Órdenes: <code class="mono">entero x = 2 + 1;</code> · <code class="mono">giro g = derecha;</code> · <code class="mono">mover(x);</code> · <code class="mono">girar(g);</code> · bloques con <code class="mono">{ … }</code>.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

@@ -11,6 +11,22 @@ APP_TITLE = "RoboLang"
 API_PREFIX = "/api"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
+# Example programs offered by the interface. Files are read from `examples/`;
+# a file without a title here is listed by its name.
+EXAMPLES_DIR = Path(__file__).resolve().parent.parent / "examples"
+EXAMPLE_PATTERN = "*.rbl"
+EXAMPLE_TITLES = {
+    "08_integral.rbl": "§15 · Ejemplo integral",
+    "01_basico.rbl": "Básico",
+    "02_variables.rbl": "Variables",
+    "03_scopes.rbl": "Ámbitos y sombreado",
+    "04_error_lexico.rbl": "Error léxico",
+    "05_error_sintaxis.rbl": "Error sintáctico",
+    "06_error_semantico.rbl": "Error semántico",
+    "07_error_runtime.rbl": "Error de ejecución",
+}
+DEFAULT_EXAMPLE = "08_integral.rbl"
+
 DEFAULT_OPTIMIZE = True
 
 INVALID_REQUEST_MESSAGE = "Solicitud inválida."
