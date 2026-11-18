@@ -6,6 +6,8 @@ The compiler targets Python 3.11 or later. The project guide and the team's inte
 
 - [Project guide](docs/RoboLang_Guia_Completa.md)
 - [Technical review and integration contract](docs/Revision_y_plan.md)
+- [Language reference](docs/lenguaje.md)
+- [Backend and VM architecture](docs/arquitectura.md)
 - [Presentation script](docs/sustentacion.md)
 
 Use `main` as the shared starting point for the compiler frontend, VM, and web work.
@@ -26,7 +28,7 @@ python -m pip install -r requirements.txt
 uvicorn web.app:app --reload
 ```
 
-Open `http://127.0.0.1:8000/`. The interface needs the compiler and VM modules (`robolang/compiler.py`, `robolang/vm.py`, `robolang/settings.py`); without them the API answers HTTP 500 with a generic message.
+Open `http://127.0.0.1:8000/`. The API loads the compiler and VM on the first request; if they cannot be imported it answers HTTP 500 with a generic message and logs the cause.
 
 ## Tests
 
@@ -34,7 +36,15 @@ Open `http://127.0.0.1:8000/`. The interface needs the compiler and VM modules (
 python -m pytest -q
 ```
 
-`tests/test_api.py` checks the API with fixture results, so it runs without the compiler. Most fixtures are real outputs from `scripts/demo_cli.py --json`.
+`tests/test_api.py` checks the API with fixture results, so it runs without the compiler. Most fixtures are real outputs from `scripts/demo_cli.py --json`. The compiler tests alone only need `requirements-dev.txt`.
+
+## Console demo
+
+```powershell
+python scripts/demo_cli.py                      # §15 example, optimized
+python scripts/demo_cli.py --no-optimize
+python scripts/demo_cli.py examples/07_error_runtime.rbl
+```
 
 ## API
 

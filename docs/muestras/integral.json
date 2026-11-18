@@ -1,0 +1,495 @@
+{
+  "ok": true,
+  "tokens": [
+    {
+      "type": "KW_ENTERO",
+      "lexeme": "entero",
+      "line": 1,
+      "column": 1
+    },
+    {
+      "type": "IDENT",
+      "lexeme": "pasos",
+      "line": 1,
+      "column": 8
+    },
+    {
+      "type": "ASSIGN",
+      "lexeme": "=",
+      "line": 1,
+      "column": 14
+    },
+    {
+      "type": "INT",
+      "lexeme": "2",
+      "line": 1,
+      "column": 16
+    },
+    {
+      "type": "PLUS",
+      "lexeme": "+",
+      "line": 1,
+      "column": 18
+    },
+    {
+      "type": "INT",
+      "lexeme": "1",
+      "line": 1,
+      "column": 20
+    },
+    {
+      "type": "SEMICOLON",
+      "lexeme": ";",
+      "line": 1,
+      "column": 21
+    },
+    {
+      "type": "KW_GIRO",
+      "lexeme": "giro",
+      "line": 2,
+      "column": 1
+    },
+    {
+      "type": "IDENT",
+      "lexeme": "lado",
+      "line": 2,
+      "column": 6
+    },
+    {
+      "type": "ASSIGN",
+      "lexeme": "=",
+      "line": 2,
+      "column": 11
+    },
+    {
+      "type": "KW_DERECHA",
+      "lexeme": "derecha",
+      "line": 2,
+      "column": 13
+    },
+    {
+      "type": "SEMICOLON",
+      "lexeme": ";",
+      "line": 2,
+      "column": 20
+    },
+    {
+      "type": "KW_MOVER",
+      "lexeme": "mover",
+      "line": 3,
+      "column": 1
+    },
+    {
+      "type": "LPAREN",
+      "lexeme": "(",
+      "line": 3,
+      "column": 6
+    },
+    {
+      "type": "IDENT",
+      "lexeme": "pasos",
+      "line": 3,
+      "column": 7
+    },
+    {
+      "type": "RPAREN",
+      "lexeme": ")",
+      "line": 3,
+      "column": 12
+    },
+    {
+      "type": "SEMICOLON",
+      "lexeme": ";",
+      "line": 3,
+      "column": 13
+    },
+    {
+      "type": "KW_GIRAR",
+      "lexeme": "girar",
+      "line": 4,
+      "column": 1
+    },
+    {
+      "type": "LPAREN",
+      "lexeme": "(",
+      "line": 4,
+      "column": 6
+    },
+    {
+      "type": "IDENT",
+      "lexeme": "lado",
+      "line": 4,
+      "column": 7
+    },
+    {
+      "type": "RPAREN",
+      "lexeme": ")",
+      "line": 4,
+      "column": 11
+    },
+    {
+      "type": "SEMICOLON",
+      "lexeme": ";",
+      "line": 4,
+      "column": 12
+    },
+    {
+      "type": "LBRACE",
+      "lexeme": "{",
+      "line": 5,
+      "column": 1
+    },
+    {
+      "type": "KW_ENTERO",
+      "lexeme": "entero",
+      "line": 6,
+      "column": 5
+    },
+    {
+      "type": "IDENT",
+      "lexeme": "pasos",
+      "line": 6,
+      "column": 12
+    },
+    {
+      "type": "ASSIGN",
+      "lexeme": "=",
+      "line": 6,
+      "column": 18
+    },
+    {
+      "type": "INT",
+      "lexeme": "2",
+      "line": 6,
+      "column": 20
+    },
+    {
+      "type": "SEMICOLON",
+      "lexeme": ";",
+      "line": 6,
+      "column": 21
+    },
+    {
+      "type": "KW_MOVER",
+      "lexeme": "mover",
+      "line": 7,
+      "column": 5
+    },
+    {
+      "type": "LPAREN",
+      "lexeme": "(",
+      "line": 7,
+      "column": 10
+    },
+    {
+      "type": "IDENT",
+      "lexeme": "pasos",
+      "line": 7,
+      "column": 11
+    },
+    {
+      "type": "RPAREN",
+      "lexeme": ")",
+      "line": 7,
+      "column": 16
+    },
+    {
+      "type": "SEMICOLON",
+      "lexeme": ";",
+      "line": 7,
+      "column": 17
+    },
+    {
+      "type": "RBRACE",
+      "lexeme": "}",
+      "line": 8,
+      "column": 1
+    },
+    {
+      "type": "EOF",
+      "lexeme": "",
+      "line": 9,
+      "column": 1
+    }
+  ],
+  "ast": {
+    "node": "Program",
+    "statements": [
+      {
+        "node": "VarDeclaration",
+        "name": "pasos",
+        "declared_type": "entero",
+        "expression": {
+          "node": "BinaryOperation",
+          "operator": "+",
+          "left": {
+            "node": "IntLiteral",
+            "value": 2,
+            "location": {
+              "line": 1,
+              "column": 16
+            }
+          },
+          "right": {
+            "node": "IntLiteral",
+            "value": 1,
+            "location": {
+              "line": 1,
+              "column": 20
+            }
+          },
+          "location": {
+            "line": 1,
+            "column": 18
+          }
+        },
+        "location": {
+          "line": 1,
+          "column": 1
+        },
+        "name_location": {
+          "line": 1,
+          "column": 8
+        },
+        "resolved_slot": "S0"
+      },
+      {
+        "node": "VarDeclaration",
+        "name": "lado",
+        "declared_type": "giro",
+        "expression": {
+          "node": "TurnLiteral",
+          "value": "derecha",
+          "location": {
+            "line": 2,
+            "column": 13
+          }
+        },
+        "location": {
+          "line": 2,
+          "column": 1
+        },
+        "name_location": {
+          "line": 2,
+          "column": 6
+        },
+        "resolved_slot": "S1"
+      },
+      {
+        "node": "Move",
+        "expression": {
+          "node": "VariableReference",
+          "name": "pasos",
+          "location": {
+            "line": 3,
+            "column": 7
+          },
+          "resolved_slot": "S0"
+        },
+        "location": {
+          "line": 3,
+          "column": 1
+        }
+      },
+      {
+        "node": "Turn",
+        "expression": {
+          "node": "VariableReference",
+          "name": "lado",
+          "location": {
+            "line": 4,
+            "column": 7
+          },
+          "resolved_slot": "S1"
+        },
+        "location": {
+          "line": 4,
+          "column": 1
+        }
+      },
+      {
+        "node": "Block",
+        "statements": [
+          {
+            "node": "VarDeclaration",
+            "name": "pasos",
+            "declared_type": "entero",
+            "expression": {
+              "node": "IntLiteral",
+              "value": 2,
+              "location": {
+                "line": 6,
+                "column": 20
+              }
+            },
+            "location": {
+              "line": 6,
+              "column": 5
+            },
+            "name_location": {
+              "line": 6,
+              "column": 12
+            },
+            "resolved_slot": "S2"
+          },
+          {
+            "node": "Move",
+            "expression": {
+              "node": "VariableReference",
+              "name": "pasos",
+              "location": {
+                "line": 7,
+                "column": 11
+              },
+              "resolved_slot": "S2"
+            },
+            "location": {
+              "line": 7,
+              "column": 5
+            }
+          }
+        ],
+        "location": {
+          "line": 5,
+          "column": 1
+        }
+      }
+    ],
+    "location": {
+      "line": 1,
+      "column": 1
+    }
+  },
+  "symbols": [
+    {
+      "name": "pasos",
+      "type": "entero",
+      "scope_id": "global",
+      "slot": "S0",
+      "decl_line": 1,
+      "decl_col": 8
+    },
+    {
+      "name": "lado",
+      "type": "giro",
+      "scope_id": "global",
+      "slot": "S1",
+      "decl_line": 2,
+      "decl_col": 6
+    },
+    {
+      "name": "pasos",
+      "type": "entero",
+      "scope_id": "bloque_1",
+      "slot": "S2",
+      "decl_line": 6,
+      "decl_col": 12
+    }
+  ],
+  "tac_before": [
+    "T0 = 2 + 1",
+    "S0 = T0",
+    "S1 = RIGHT",
+    "MOVE S0",
+    "TURN S1",
+    "S2 = 2",
+    "MOVE S2"
+  ],
+  "tac_after": [
+    "T0 = 3",
+    "S0 = T0",
+    "S1 = RIGHT",
+    "MOVE S0",
+    "TURN S1",
+    "S2 = 2",
+    "MOVE S2"
+  ],
+  "assembly": [
+    "LOADC R0, 3",
+    "STORE T0, R0",
+    "LOAD R0, T0",
+    "STORE S0, R0",
+    "LOADC R0, RIGHT",
+    "STORE S1, R0",
+    "LOAD R0, S0",
+    "MOVE R0",
+    "LOAD R0, S1",
+    "TURN R0",
+    "LOADC R0, 2",
+    "STORE S2, R0",
+    "LOAD R0, S2",
+    "MOVE R0",
+    "HALT"
+  ],
+  "diagnostics": [],
+  "execution": {
+    "ok": true,
+    "start": {
+      "x": 1,
+      "y": 4,
+      "orientation": "NORTE"
+    },
+    "final": {
+      "x": 3,
+      "y": 1,
+      "orientation": "ESTE"
+    },
+    "events": [
+      {
+        "pc": 7,
+        "source_line": 3,
+        "source_column": 1,
+        "action": "move-step",
+        "x": 1,
+        "y": 3,
+        "orientation": "NORTE"
+      },
+      {
+        "pc": 7,
+        "source_line": 3,
+        "source_column": 1,
+        "action": "move-step",
+        "x": 1,
+        "y": 2,
+        "orientation": "NORTE"
+      },
+      {
+        "pc": 7,
+        "source_line": 3,
+        "source_column": 1,
+        "action": "move-step",
+        "x": 1,
+        "y": 1,
+        "orientation": "NORTE"
+      },
+      {
+        "pc": 9,
+        "source_line": 4,
+        "source_column": 1,
+        "action": "turn",
+        "x": 1,
+        "y": 1,
+        "orientation": "ESTE"
+      },
+      {
+        "pc": 13,
+        "source_line": 7,
+        "source_column": 5,
+        "action": "move-step",
+        "x": 2,
+        "y": 1,
+        "orientation": "ESTE"
+      },
+      {
+        "pc": 13,
+        "source_line": 7,
+        "source_column": 5,
+        "action": "move-step",
+        "x": 3,
+        "y": 1,
+        "orientation": "ESTE"
+      }
+    ],
+    "diagnostics": []
+  }
+}
