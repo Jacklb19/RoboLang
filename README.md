@@ -30,6 +30,16 @@ uvicorn web.app:app --reload
 
 Open `http://127.0.0.1:8000/`. The API loads the compiler and VM on the first request; if they cannot be imported it answers HTTP 500 with a generic message and logs the cause.
 
+## Deploy to Vercel
+
+Import this GitHub repository into Vercel and select the `main` branch. Keep the root directory at the repository root and select the FastAPI framework preset. Use its default build settings.
+
+`app.py` exposes the existing application as `app` at the repository root. `.python-version` selects Python 3.14. Vercel installs `requirements.txt` and loads the application through its Python runtime. The `.vercelignore` file excludes local environments, test files, and documentation while retaining `examples/` and `web/static/`.
+
+After deploying, open the site and check that `/api/config` and `/api/examples` return JSON. Compile and execute the integral example, which should end at `(3,1) ESTE`.
+
+See the [Vercel FastAPI guide](https://vercel.com/docs/frameworks/backend/fastapi) for the framework preset and the [Python runtime guide](https://vercel.com/docs/functions/runtimes/python) for supported versions.
+
 ## Tests
 
 ```powershell
