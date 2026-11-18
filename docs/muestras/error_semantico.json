@@ -1,0 +1,184 @@
+{
+  "ok": false,
+  "tokens": [
+    {
+      "type": "KW_ENTERO",
+      "lexeme": "entero",
+      "line": 1,
+      "column": 1
+    },
+    {
+      "type": "IDENT",
+      "lexeme": "pasos",
+      "line": 1,
+      "column": 8
+    },
+    {
+      "type": "ASSIGN",
+      "lexeme": "=",
+      "line": 1,
+      "column": 14
+    },
+    {
+      "type": "INT",
+      "lexeme": "3",
+      "line": 1,
+      "column": 16
+    },
+    {
+      "type": "SEMICOLON",
+      "lexeme": ";",
+      "line": 1,
+      "column": 17
+    },
+    {
+      "type": "KW_GIRO",
+      "lexeme": "giro",
+      "line": 2,
+      "column": 1
+    },
+    {
+      "type": "IDENT",
+      "lexeme": "lado",
+      "line": 2,
+      "column": 6
+    },
+    {
+      "type": "ASSIGN",
+      "lexeme": "=",
+      "line": 2,
+      "column": 11
+    },
+    {
+      "type": "KW_IZQUIERDA",
+      "lexeme": "izquierda",
+      "line": 2,
+      "column": 13
+    },
+    {
+      "type": "SEMICOLON",
+      "lexeme": ";",
+      "line": 2,
+      "column": 22
+    },
+    {
+      "type": "KW_MOVER",
+      "lexeme": "mover",
+      "line": 3,
+      "column": 1
+    },
+    {
+      "type": "LPAREN",
+      "lexeme": "(",
+      "line": 3,
+      "column": 6
+    },
+    {
+      "type": "IDENT",
+      "lexeme": "lado",
+      "line": 3,
+      "column": 7
+    },
+    {
+      "type": "RPAREN",
+      "lexeme": ")",
+      "line": 3,
+      "column": 11
+    },
+    {
+      "type": "SEMICOLON",
+      "lexeme": ";",
+      "line": 3,
+      "column": 12
+    },
+    {
+      "type": "EOF",
+      "lexeme": "",
+      "line": 4,
+      "column": 1
+    }
+  ],
+  "ast": {
+    "node": "Program",
+    "statements": [
+      {
+        "node": "VarDeclaration",
+        "name": "pasos",
+        "declared_type": "entero",
+        "expression": {
+          "node": "IntLiteral",
+          "value": 3,
+          "location": {
+            "line": 1,
+            "column": 16
+          }
+        },
+        "location": {
+          "line": 1,
+          "column": 1
+        },
+        "name_location": {
+          "line": 1,
+          "column": 8
+        },
+        "resolved_slot": null
+      },
+      {
+        "node": "VarDeclaration",
+        "name": "lado",
+        "declared_type": "giro",
+        "expression": {
+          "node": "TurnLiteral",
+          "value": "izquierda",
+          "location": {
+            "line": 2,
+            "column": 13
+          }
+        },
+        "location": {
+          "line": 2,
+          "column": 1
+        },
+        "name_location": {
+          "line": 2,
+          "column": 6
+        },
+        "resolved_slot": null
+      },
+      {
+        "node": "Move",
+        "expression": {
+          "node": "VariableReference",
+          "name": "lado",
+          "location": {
+            "line": 3,
+            "column": 7
+          },
+          "resolved_slot": null
+        },
+        "location": {
+          "line": 3,
+          "column": 1
+        }
+      }
+    ],
+    "location": {
+      "line": 1,
+      "column": 1
+    }
+  },
+  "symbols": [],
+  "tac_before": [],
+  "tac_after": [],
+  "assembly": [],
+  "diagnostics": [
+    {
+      "phase": "semantic",
+      "code": "SEM_TYPE_MISMATCH",
+      "message": "mover() requires type 'entero', but got 'giro'.",
+      "line": 3,
+      "column": 1
+    }
+  ],
+  "execution": null
+}

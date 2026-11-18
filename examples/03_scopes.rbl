@@ -1,0 +1,7 @@
+entero pasos = 1;
+mover(pasos);
+{
+    entero pasos = 2;
+    mover(pasos);
+}
+mover(pasos);

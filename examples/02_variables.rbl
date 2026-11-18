@@ -1,0 +1,4 @@
+entero pasos = 2 + 1 * 2;
+giro sentido = izquierda;
+mover(pasos);
+girar(sentido);

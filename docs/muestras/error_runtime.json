@@ -1,0 +1,138 @@
+{
+  "ok": true,
+  "tokens": [
+    {
+      "type": "KW_MOVER",
+      "lexeme": "mover",
+      "line": 1,
+      "column": 1
+    },
+    {
+      "type": "LPAREN",
+      "lexeme": "(",
+      "line": 1,
+      "column": 6
+    },
+    {
+      "type": "INT",
+      "lexeme": "20",
+      "line": 1,
+      "column": 7
+    },
+    {
+      "type": "RPAREN",
+      "lexeme": ")",
+      "line": 1,
+      "column": 9
+    },
+    {
+      "type": "SEMICOLON",
+      "lexeme": ";",
+      "line": 1,
+      "column": 10
+    },
+    {
+      "type": "EOF",
+      "lexeme": "",
+      "line": 2,
+      "column": 1
+    }
+  ],
+  "ast": {
+    "node": "Program",
+    "statements": [
+      {
+        "node": "Move",
+        "expression": {
+          "node": "IntLiteral",
+          "value": 20,
+          "location": {
+            "line": 1,
+            "column": 7
+          }
+        },
+        "location": {
+          "line": 1,
+          "column": 1
+        }
+      }
+    ],
+    "location": {
+      "line": 1,
+      "column": 1
+    }
+  },
+  "symbols": [],
+  "tac_before": [
+    "MOVE 20"
+  ],
+  "tac_after": [
+    "MOVE 20"
+  ],
+  "assembly": [
+    "LOADC R0, 20",
+    "MOVE R0",
+    "HALT"
+  ],
+  "diagnostics": [],
+  "execution": {
+    "ok": false,
+    "start": {
+      "x": 1,
+      "y": 4,
+      "orientation": "NORTE"
+    },
+    "final": {
+      "x": 1,
+      "y": 0,
+      "orientation": "NORTE"
+    },
+    "events": [
+      {
+        "pc": 1,
+        "source_line": 1,
+        "source_column": 1,
+        "action": "move-step",
+        "x": 1,
+        "y": 3,
+        "orientation": "NORTE"
+      },
+      {
+        "pc": 1,
+        "source_line": 1,
+        "source_column": 1,
+        "action": "move-step",
+        "x": 1,
+        "y": 2,
+        "orientation": "NORTE"
+      },
+      {
+        "pc": 1,
+        "source_line": 1,
+        "source_column": 1,
+        "action": "move-step",
+        "x": 1,
+        "y": 1,
+        "orientation": "NORTE"
+      },
+      {
+        "pc": 1,
+        "source_line": 1,
+        "source_column": 1,
+        "action": "move-step",
+        "x": 1,
+        "y": 0,
+        "orientation": "NORTE"
+      }
+    ],
+    "diagnostics": [
+      {
+        "phase": "runtime",
+        "code": "RUN_OUT_OF_BOUNDS",
+        "message": "The robot cannot leave the grid at (1, -1).",
+        "line": 1,
+        "column": 1
+      }
+    ]
+  }
+}
