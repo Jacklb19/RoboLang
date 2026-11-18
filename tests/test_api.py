@@ -375,3 +375,84 @@ def test_api_routes_take_precedence_over_static_files(client: TestClient) -> Non
     unknown = client.get("/api/no-existe")
     assert unknown.status_code == 404
     assert "text/html" not in unknown.headers.get("content-type", "")
+
+
+# --- Integrated compiler and VM -----------------------------------------------------------------
+# From here on the API uses the real backend (`load_backend`), not fixtures.
+
+EXAMPLES = Path(__file__).resolve().parent.parent / "examples"
+
+
+@pytest.fixture
+def real_client() -> TestClient:
+    return TestClient(create_app())
+
+
+def example(name: str) -> str:
+    return (EXAMPLES / name).read_text(encoding="utf-8")
+
+
+def without_pc(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [{key: value for key, value in event.items() if key != "pc"} for event in events]
+
+
+def test_real_run_of_section_15_reaches_final_state_in_both_modes(real_client: TestClient) -> None:
+    source = example("08_integral.rbl")
+    optimized = real_client.post("/api/run", json={"source": source, "optimize": True}).json()
+    plain = real_client.post("/api/run", json={"source": source, "optimize": False}).json()
+
+    for body in (optimized, plain):
+        assert body["ok"] is True
+        assert body["execution"]["ok"] is True
+        assert body["execution"]["final"] == {"x": 3, "y": 1, "orientation": "ESTE"}
+    assert optimized["tac_after"] != optimized["tac_before"]
+    assert plain["tac_after"] == plain["tac_before"]
+    assert without_pc(optimized["execution"]["events"]) == without_pc(plain["execution"]["events"])
+
+
+def test_real_run_matches_recorded_fixtures(real_client: TestClient) -> None:
+    for file, name in (("08_integral.rbl", "integral"), ("07_error_runtime.rbl", "error_runtime"),
+                       ("06_error_semantico.rbl", "error_semantico")):
+        assert real_client.post("/api/run", json={"source": example(file)}).json() == load_sample(name)
+
+
+@pytest.mark.parametrize(
+    ("name", "phase", "code"),
+    [
+        ("04_error_lexico.rbl", "lexical", "LEX_UNKNOWN_CHAR"),
+        ("05_error_sintaxis.rbl", "syntax", "SYN_EXPECTED_TOKEN"),
+        ("06_error_semantico.rbl", "semantic", "SEM_TYPE_MISMATCH"),
+    ],
+)
+def test_real_compile_errors_block_the_vm(real_client: TestClient, name: str, phase: str, code: str) -> None:
+    body = real_client.post("/api/run", json={"source": example(name)}).json()
+
+    assert body["ok"] is False
+    assert body["execution"] is None
+    assert [(d["phase"], d["code"]) for d in body["diagnostics"]] == [(phase, code)]
+
+
+def test_real_runtime_error_keeps_partial_trace(real_client: TestClient) -> None:
+    execution = real_client.post("/api/run", json={"source": example("07_error_runtime.rbl")}).json()["execution"]
+
+    assert execution["ok"] is False
+    assert execution["events"]
+    assert execution["diagnostics"][0]["phase"] == "runtime"
+
+
+def test_real_config_and_source_limit(real_client: TestClient) -> None:
+    from robolang import settings
+
+    config = real_client.get("/api/config").json()
+    assert config["max_source_chars"] == settings.MAX_SOURCE_CHARS
+    assert config["start"] == {"x": settings.START_X, "y": settings.START_Y, "orientation": settings.START_ORIENTATION}
+
+    too_long = "x" * (settings.MAX_SOURCE_CHARS + 1)
+    assert real_client.post("/api/compile", json={"source": too_long}).status_code == 422
+
+
+def test_real_examples_are_listed(real_client: TestClient) -> None:
+    ids = [e["id"] for e in real_client.get("/api/examples").json()["examples"]]
+
+    assert ids[0] == "08_integral.rbl"
+    assert set(ids) == {path.name for path in EXAMPLES.glob("*.rbl")}

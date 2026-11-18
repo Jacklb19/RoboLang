@@ -28,27 +28,34 @@ Demostraciones imprescindibles (§21): **A**, el §15 hasta (3,1) ESTE; **B**, `
 
 ## Evidencias
 
-### Comprobadas el 2026-11-18, antes de integrar en `main`
+Comprobadas el 2026-11-18 en `santiago/web-api` después de fusionar `steven/backend-vm` (commit `19f17d5`), con `uvicorn web.app:app` en `http://127.0.0.1:8000/`.
 
-La interfaz y la API de `santiago/web-api` se ejecutaron con el compilador y la VM de la rama `steven/backend-vm` (commit `19f17d5`), cargados desde una copia temporal sin fusionar:
+**Pruebas:** `python -m pytest -q` → `254 passed`. Incluye 206 pruebas de lexer, parser, semántica, TAC, optimizador, VM y extremo a extremo, y 48 de la API: 40 con fixtures y 8 con el compilador y la VM reales.
 
-| Caso | Resultado observado en el navegador |
+**Interfaz en el navegador:**
+
+| Caso | Resultado observado |
 |---|---|
-| §15 con optimización | `Ejecución completada · (3,1) ESTE`, 6 eventos; TAC `T0 = 2 + 1` → `T0 = 3`. |
-| §15 sin optimización | Mismo final (3,1) ESTE y 6 eventos; TAC sin cambios. |
+| §15 · Compilar | `Compilación exitosa · con optimización`; el robot sigue en (1,4) NORTE. |
+| §15 · Ejecutar con optimización | `Ejecución completada · (3,1) ESTE`, 6 eventos; TAC `T0 = 2 + 1` → `T0 = 3`. |
+| §15 · Ejecutar sin optimización | Mismo final (3,1) ESTE y 6 eventos; TAC sin cambios. |
 | `04_error_lexico.rbl` | `LEX_UNKNOWN_CHAR`, línea 1, columna 7; robot en (1,4) NORTE. |
 | `05_error_sintaxis.rbl` | `SYN_EXPECTED_TOKEN`, línea 1, columna 8; robot en (1,4) NORTE. |
 | `06_error_semantico.rbl` | `SEM_TYPE_MISMATCH`, línea 3, columna 1; robot en (1,4) NORTE. |
 | `07_error_runtime.rbl` | `RUN_OUT_OF_BOUNDS`, línea 1, columna 1; 4 eventos válidos, robot en (1,0) NORTE. |
-| Editar durante la reproducción | Se detiene, el robot vuelve a (1,4) y las pestañas se vacían. |
-| Respuesta tardía tras editar o cambiar «Optimizar» | Se descarta; queda «El código cambió: vuelve a compilar». |
-| Móvil (390 px) | Columnas apiladas, sin desplazamiento horizontal de la página. |
+| Cambiar «Optimizar» o editar durante la reproducción | Se detiene, el robot vuelve a (1,4) y las pestañas se vacían. |
+| Respuesta tardía tras editar o cambiar «Optimizar»* | Se descarta; queda «El código cambió: vuelve a compilar». |
+| Móvil (390 px)* | Columnas apiladas, sin desplazamiento horizontal de la página. |
 
-### Pendientes tras integrar en `main`
+\* Comprobado antes de la fusión, con el mismo código de Steven cargado desde una copia temporal; la interfaz no cambió después.
 
-- Salida de `python -m pytest -q` con todo el código integrado.
-- Capturas de la demo A y B, y de los errores léxico, sintáctico y runtime.
-- Repetir la tabla anterior con `uvicorn web.app:app` desde `main`.
+**Capturas** (`docs/evidencias/`):
+
+- [Demostración A: §15 hasta (3,1) ESTE](evidencias/demo_a_integral.png)
+- [Demostración B: error semántico, robot sin moverse](evidencias/demo_b_error_semantico.png)
+- [Error de ejecución con traza parcial](evidencias/error_runtime.png)
+
+Pendiente si el docente lo pide: capturas de cada pestaña (tokens, AST, símbolos, TAC, ensamblador) y de los errores léxico y sintáctico.
 
 ## Límites que conviene mencionar
 
