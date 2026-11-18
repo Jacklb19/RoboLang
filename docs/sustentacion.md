@@ -20,8 +20,8 @@ Guion de 10–12 minutos basado en el §21 de la [guía](RoboLang_Guia_Completa.
 | 1.5 min | Pestaña **TAC**. Desactivar «Optimizar» y volver a compilar. | `T0 = 2 + 1` → `T0 = 3`. Sin optimizar, ambas columnas son iguales. Cambiar la opción invalida los resultados. |
 | 1.5 min | Pestaña **Ensamblador**. | `LOADC`, `LOAD`, `STORE`, `MOVE`, `TURN`, `HALT`; registros R0/R1 y memoria S/T. |
 | 1 min | **Ejecutar** → pestaña **Traza**. | La VM devuelve eventos; la web solo los reproduce. Final: (3,1) ESTE en 6 eventos. Se resalta la línea, el PC y la celda. |
-| 1.5 min | Ejemplos **Error léxico**, **Error sintáctico** y **Error semántico** → Ejecutar. | Error localizado por fase; `execution` es `null` y el robot no se mueve. |
-| 0.5 min | Ejemplo **Error de ejecución** → Ejecutar. | Compila (`ok: true`), falla la VM (`execution.ok: false`) y se conserva la traza parcial hasta (1,0). |
+| 1.5 min | Ejemplos **Error léxico**, **Error sintáctico** y **Error semántico** → Compilar. | Error localizado por fase. Ejecutar queda deshabilitado y el robot sigue en su posición inicial. |
+| 0.5 min | Ejemplo **Error de ejecución** → Compilar → Ejecutar. | Compila (`ok: true`), falla la VM (`execution.ok: false`) y se conserva la traza parcial hasta (1,0). |
 | 0.5 min | — | Conclusiones y límites. |
 
 Demostraciones imprescindibles (§21): **A**, el §15 hasta (3,1) ESTE; **B**, `mover(lado)` con `lado: giro`, con error en la línea 3 y el robot sin moverse.
@@ -56,6 +56,12 @@ Comprobadas el 2026-11-18 en `santiago/web-api` después de fusionar `steven/bac
 - [Error de ejecución con traza parcial](evidencias/error_runtime.png)
 
 Pendiente si el docente lo pide: capturas de cada pestaña (tokens, AST, símbolos, TAC, ensamblador) y de los errores léxico y sintáctico.
+
+## Verificación de las correcciones en main
+
+El 2026-11-18 se comprobaron las correcciones con 254 pruebas Python y 5 pruebas de estado de la interfaz mediante `node --test tests/web_ui.test.cjs`.
+
+En el navegador se verificó que Ejecutar se habilita tras compilar correctamente y se bloquea al editar, cambiar la optimización o fallar la compilación. El ejemplo integral llegó a (3,1) ESTE. Después de una ejecución correcta, se detuvo el servidor temporal y se intentó ejecutar otra vez. La interfaz mantuvo visible el mensaje de conexión fallida.
 
 ## Límites que conviene mencionar
 

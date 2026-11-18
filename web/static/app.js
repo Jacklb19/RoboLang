@@ -526,7 +526,7 @@ function updateButtons() {
   const busy = state.busy !== null;
   const ready = state.config !== null;
   dom.compile.disabled = busy || !ready;
-  dom.run.disabled = busy || !ready;
+  dom.run.disabled = busy || !ready || !state.compilation?.ok;
   dom.compile.textContent = state.busy === "compile" ? MESSAGES.compiling : "Compilar";
   dom.run.textContent = state.busy === "run" ? MESSAGES.running : "Ejecutar";
 
@@ -600,8 +600,9 @@ async function submit(endpoint) {
 function showRequestFailure(body, fallback) {
   let detail = fallback || (body && body.message) || "";
   if (body && Array.isArray(body.errors) && body.errors.length) detail = body.errors[0].message;
-  setStatus(detail ? `${MESSAGES.requestFailed}: ${detail}` : MESSAGES.requestFailed, "err");
   if (state.execution) showFrame();
+  setBadge(MESSAGES.requestFailed, "err");
+  setStatus(detail ? `${MESSAGES.requestFailed}: ${detail}` : MESSAGES.requestFailed, "err");
 }
 
 function showResult(body, optimize, endpoint) {

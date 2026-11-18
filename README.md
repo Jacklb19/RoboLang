@@ -36,6 +36,12 @@ Open `http://127.0.0.1:8000/`. The API loads the compiler and VM on the first re
 python -m pytest -q
 ```
 
+Run the browser state regression tests with Node.js 18 or later, using its built-in test runner.
+
+```sh
+node --test tests/web_ui.test.cjs
+```
+
 `tests/test_api.py` checks the API with fixture results, so it runs without the compiler. Most fixtures are real outputs from `scripts/demo_cli.py --json`. The compiler tests alone only need `requirements-dev.txt`.
 
 ## Console demo
@@ -71,3 +77,5 @@ python scripts/demo_cli.py examples/07_error_runtime.rbl
 | `web/static/` | `index.html`, `styles.css`, `app.js` (no framework). |
 
 The interface only displays API results. It does not tokenize, type-check, optimize or move the robot itself. When the code or the optimize option changes, it discards results, cancels playback and ignores responses to older requests.
+
+Execute becomes available after a successful compilation of the current source and optimization option. A failed request displays its error even when a previous execution completed successfully.
