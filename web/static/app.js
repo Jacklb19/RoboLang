@@ -34,6 +34,7 @@ const dom = {
   compile: $("btn-compile"), run: $("btn-run"), pause: $("btn-pause"), step: $("btn-step"), restart: $("btn-restart"),
   speed: $("speed"), grid: $("grid"), badge: $("play-badge"),
   posStart: $("pos-start"), posNow: $("pos-now"), posFinal: $("pos-final"), currentEvent: $("current-event"),
+  apples: $("apples"), applePos: $("apple-pos"), newApple: $("btn-apple"),
   tablist: $("tablist"),
   panels: {
     tokens: $("panel-tokens"), ast: $("panel-ast"), symbols: $("panel-symbols"), tac: $("panel-tac"),
@@ -53,6 +54,10 @@ const state = {
   index: 0,            // Number of execution events already shown.
   playing: false,
   timer: null,
+  // Apple mini-game. It lives only in the interface and never changes what the VM does:
+  // it reads the robot positions from the VM events, like the rest of the simulator.
+  game: { seed: 1, base: null },  // base = { apple, score } before the current execution.
+  runBase: null,                    // Snapshot used to replay the current execution.
 };
 
 // --- Helpers ----------------------------------------------------------------------------------
@@ -195,6 +200,63 @@ function robotIcon(orientation) {
   return svg;
 }
 
+// --- Apple mini-game ---------------------------------------------------------------------------
+
+// Small seeded generator: the same seed and count always give the same apple, so
+// "Paso" and "Reiniciar" replay the game exactly like the robot.
+function seededRandom(seed) {
+  let t = seed >>> 0;
+  return () => {
+    t = (t + 0x6D2B79F5) >>> 0;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Pick the n-th apple: any cell except where the robot is and the start cell.
+function pickApple(n, robot) {
+  const { width, height } = state.config.grid;
+  const start = state.config.start;
+  const free = [];
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const busy = (x === robot.x && y === robot.y) || (x === start.x && y === start.y);
+      if (!busy) free.push({ x, y });
+    }
+  }
+  const rand = seededRandom(state.game.seed + n * 7919);
+  return free[Math.floor(rand() * free.length)];
+}
+
+// New random apple sequence. `robot` is where the robot stands now; `score` is kept.
+function newGame(robot = state.config.start, score = 0) {
+  state.game.seed = Math.floor(Math.random() * 1e9);
+  state.game.base = { apple: pickApple(0, robot), score };
+}
+
+// Replay the first `shown` events: every time the robot lands on the apple it eats it
+// and a new one appears somewhere else.
+function appleState(shown) {
+  // Without a run to replay (or after "Nueva manzana"), show the saved apple as it is.
+  if (!state.execution || !state.runBase) return { ...state.game.base, ateNow: false };
+  let { apple, score } = state.runBase;
+  let ateNow = false;
+  const events = state.execution.events.slice(0, shown);
+  events.forEach((ev, i) => {
+    if (ev.x === apple.x && ev.y === apple.y) {
+      score += 1;
+      apple = pickApple(score, ev);
+      ateNow = i === events.length - 1;
+    }
+  });
+  return { apple, score, ateNow };
+}
+
+function appleIcon() {
+  return el("span", { class: "apple-icon", text: "🍎", "aria-hidden": "true" });
+}
+
 // Draw the robot after `shown` events: positions come only from VM events.
 function drawRobot(shown) {
   const start = state.execution ? state.execution.start : state.config.start;
@@ -203,6 +265,8 @@ function drawRobot(shown) {
   const visited = new Set([start, ...events.slice(0, -1)].map((p) => `${p.x},${p.y}`));
   const startKey = `${start.x},${start.y}`;
   const currentKey = `${current.x},${current.y}`;
+  const game = appleState(shown);
+  const appleKey = `${game.apple.x},${game.apple.y}`;
 
   state.cells.forEach((row, y) => row.forEach((cell, x) => {
     const key = `${x},${y}`;
@@ -211,15 +275,22 @@ function drawRobot(shown) {
     if (key === currentKey) {
       cell.classList.add("robot");
       cell.append(robotIcon(current.orientation));
+      if (game.ateNow) cell.classList.add("ate");
     } else if (key === startKey && events.length) {
       cell.classList.add("start-label");
     } else if (visited.has(key) && events.length) {
       cell.classList.add("trail");
     }
+    if (key === appleKey && key !== currentKey) {
+      cell.classList.add("apple");
+      cell.append(appleIcon());
+    }
   }));
+  dom.apples.textContent = game.score;
+  dom.applePos.textContent = `(${game.apple.x},${game.apple.y})`;
 
   dom.grid.setAttribute("aria-label",
-    `Cuadrícula ${state.config.grid.width} por ${state.config.grid.height}. Robot en (${current.x},${current.y}) mirando al ${current.orientation}.`);
+    `Cuadrícula ${state.config.grid.width} por ${state.config.grid.height}. Robot en (${current.x},${current.y}) mirando al ${current.orientation}. Manzana en (${game.apple.x},${game.apple.y}).`);
   dom.posStart.textContent = formatPosition(start);
   dom.posNow.textContent = formatPosition(current);
   dom.posFinal.textContent = state.execution ? formatPosition(state.execution.final) : "—";
@@ -465,7 +536,8 @@ function showFrame() {
 
   if (state.index >= total) return finishPlayback();
   markLine(event ? event.source_line : null, "");
-  dom.currentEvent.replaceChildren(...(event
+  const yum = appleState(state.index).ateNow ? [el("strong", { class: "yum", text: "¡Ñam! Manzana comida. " })] : [];
+  dom.currentEvent.replaceChildren(...yum, ...(event
     ? ["Evento actual: ", el("strong", { text: event.action }), ` · línea ${event.source_line}, columna ${event.source_column} · `,
        el("code", { text: sourceLine(event.source_line).trim() })]
     : ["Robot en el estado inicial."]));
@@ -496,9 +568,12 @@ function finishPlayback() {
   state.playing = false;
   const execution = state.execution;
   const last = currentEvent();
+  const game = appleState(execution.events.length);
+  if (state.runBase) state.game.base = { apple: game.apple, score: game.score };
   dom.currentEvent.textContent = last
     ? `Último evento: ${last.action} · línea ${last.source_line}, columna ${last.source_column}`
     : "No hubo movimientos ni giros.";
+  if (game.ateNow) dom.currentEvent.prepend(el("strong", { class: "yum", text: "¡Ñam! Manzana comida. " }));
   if (execution.ok) {
     markLine(null);
     setBadge("Completada", "ok");
@@ -537,6 +612,7 @@ function updateButtons() {
   dom.pause.textContent = midway && !state.playing ? "Reanudar" : "Pausar";
   dom.step.disabled = busy || !midway || state.playing;
   dom.restart.disabled = busy || execution === null;
+  dom.newApple.disabled = busy || midway;
 }
 
 function clearResults() {
@@ -610,6 +686,7 @@ function showResult(body, optimize, endpoint) {
   state.optimizeUsed = optimize;
   state.compilation = body;
   state.execution = endpoint === "run" ? body.execution : null;
+  state.runBase = state.execution ? { ...state.game.base } : null;
   state.index = 0;
   hideAlert();
   markLine(null);
@@ -693,6 +770,13 @@ function bindEvents() {
     setStatus(MESSAGES.compileOk(state.optimizeUsed), "ok");
     startPlayback();
   });
+  dom.newApple.addEventListener("click", () => {
+    // A finished run stays on screen; the next run starts from the new apple.
+    const robot = (state.execution && state.execution.events.at(-1)) || state.config.start;
+    newGame(robot, state.game.base.score);
+    state.runBase = null;
+    drawRobot(state.execution ? state.index : 0);
+  });
   dom.speed.addEventListener("change", () => { if (state.playing) scheduleNext(); });
   window.addEventListener("resize", positionLineMark);
 }
@@ -708,6 +792,7 @@ async function init() {
     const [config, examples] = await Promise.all([getJson("config"), getJson("examples")]);
     state.config = config;
     buildGrid();
+    newGame();
     drawRobot(0);
     loadExamples(examples);
     updateCharCount();

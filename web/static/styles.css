@@ -172,6 +172,14 @@ select {
 .cell.robot::before, .cell.robot::after { content: none; }
 .robot-icon { width: 60%; height: 60%; transition: transform 160ms ease; }
 @media (prefers-reduced-motion: reduce) { .robot-icon { transition: none; } }
+.cell.apple { background: #3A1A1F; border-color: #E5484D; }
+.cell.apple::before, .cell.apple::after { content: none; }
+.apple-icon { font-size: calc(var(--cell) * 0.55); line-height: 1; animation: apple-in 260ms ease-out; }
+.cell.ate { animation: ate 420ms ease-out; }
+.yum { color: #F87171; }
+@keyframes apple-in { from { transform: scale(0.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes ate { 0% { box-shadow: 0 0 0 0 #E5484D; } 100% { box-shadow: 0 0 0 10px transparent; } }
+@media (prefers-reduced-motion: reduce) { .apple-icon, .cell.ate { animation: none; } }
 
 .readout {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
@@ -179,6 +187,8 @@ select {
 }
 .readout > div { background: var(--surface); border-radius: 8px; padding: 8px 10px; }
 .readout > .now { background: var(--accent-soft); }
+.readout.game { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.readout.game dd { color: #F87171; font-weight: 600; }
 .readout dt { font-size: 11px; color: var(--muted); }
 .readout dd { margin: 2px 0 0; }
 .current-event { margin: 0; min-height: 20px; font-size: 13px; color: var(--text-soft); text-align: center; }

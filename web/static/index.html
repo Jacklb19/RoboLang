@@ -71,12 +71,17 @@
             <div class="now"><dt>Ahora</dt><dd class="mono" id="pos-now">—</dd></div>
             <div><dt>Final de la VM</dt><dd class="mono" id="pos-final">—</dd></div>
           </dl>
+          <dl class="readout game">
+            <div><dt>Manzana en</dt><dd class="mono" id="apple-pos">—</dd></div>
+            <div><dt>Manzanas comidas</dt><dd class="mono" id="apples">0</dd></div>
+          </dl>
           <p class="current-event" id="current-event"></p>
         </div>
         <div class="panel-foot" role="group" aria-label="Controles de reproducción">
           <button type="button" id="btn-pause" class="btn" disabled>Pausar</button>
           <button type="button" id="btn-step" class="btn" disabled>Paso</button>
           <button type="button" id="btn-restart" class="btn" disabled>Reiniciar</button>
+          <button type="button" id="btn-apple" class="btn" title="Pone la manzana en otra casilla">Nueva manzana</button>
           <label class="field-inline speed">
             <span>Velocidad</span>
             <select id="speed">
